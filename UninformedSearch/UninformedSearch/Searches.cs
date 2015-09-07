@@ -273,9 +273,9 @@ namespace UninformedSearch
 
         public void DepthLimitedSearch(TileBoard inputBoard)
         {
-            openNodes = new NodeDepthStack(31, false);
+            openNodes = new NodeDepthStack(27, false);
             Start(inputBoard);
-            Console.WriteLine("Depth Limited Search: (with a depth limit of 31)");
+            Console.WriteLine("Depth Limited Search: (with a depth limit of 27)");
             solution.Print();
             Console.WriteLine("----------------------------");
         }
