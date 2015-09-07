@@ -31,6 +31,7 @@ namespace UninformedSearch
                 searches.DepthFirstSearch(tileBoard.Copy());
                 searches.DepthLimitedSearch(tileBoard.Copy());
                 searches.IterativeDeepeningSearch(tileBoard.Copy());
+                searches.BidirectionalSearch(tileBoard.Copy());
             }
             Console.ReadLine();
         }

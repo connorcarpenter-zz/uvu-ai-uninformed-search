@@ -27,6 +27,7 @@ namespace UninformedSearch
         void Push(BoardNode node);
         BoardNode Pop();
         int Count();
+        bool Upgrade(BoardNode node);
     }
 
     class NodeQueue : INodeList
@@ -46,6 +47,11 @@ namespace UninformedSearch
         public int Count()
         {
             return queue.Count();
+        }
+
+        public bool Upgrade(BoardNode node)
+        {
+            return false;
         }
     }
 
@@ -67,12 +73,17 @@ namespace UninformedSearch
         {
             return stack.Count();
         }
+
+        public bool Upgrade(BoardNode node)
+        {
+            return false;
+        }
     }
 
     class NodeDepthStack : INodeList
     {
         private Stack<BoardNode> stack;
-        private Queue<BoardNode> queue;
+        private List<BoardNode> queue;
         public int Depth;
         public bool CanDeepen = false;
 
@@ -81,7 +92,7 @@ namespace UninformedSearch
             Depth = depth;
             CanDeepen = canDeepen;
             stack = new Stack<BoardNode>();
-            queue = new Queue<BoardNode>();
+            queue = new List<BoardNode>();
         }
 
         public void Push(BoardNode node)
@@ -89,7 +100,7 @@ namespace UninformedSearch
             if (node.Cost <= Depth)
                 stack.Push(node);
             else
-                queue.Enqueue(node);
+                queue.Insert(0,node);
         }
 
         public BoardNode Pop()
@@ -103,15 +114,17 @@ namespace UninformedSearch
         public void SetDepth(int newDepth)
         {
             Depth = newDepth;
-            var newQueue = new Queue<BoardNode>();
+            var newQueue = new List<BoardNode>();
 
             while (queue.Count > 0)
             {
-                var node = queue.Dequeue();
+                var index = queue.Count-1;
+                var node = queue[index];
+                queue.RemoveAt(index);
                 if (node.Cost <= Depth)
                     stack.Push(node);
                 else
-                    newQueue.Enqueue(node);
+                    newQueue.Insert(0,node);
             }
 
             queue = newQueue;
@@ -120,6 +133,17 @@ namespace UninformedSearch
         public int Count()
         {
             return stack.Count();
+        }
+
+        public bool Upgrade(BoardNode node)
+        {
+            if (CanDeepen || node.Cost > Depth)
+                return false;
+
+            if (queue.Contains(node))
+                queue.Remove(node);
+            Push(node);
+            return node.Cost + 1 <= Depth;
         }
     }
 }
