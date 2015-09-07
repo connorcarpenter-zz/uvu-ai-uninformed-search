@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using static UninformedSearch.BreadthFirstSearch;
+using System.Linq;
 
 namespace UninformedSearch
 {
     class BoardNode
     {
-        public readonly BoardNode Previous;
+        public BoardNode Previous;
         public readonly TileBoard Board;
         public char TileMoved;
         public int Cost;
+        public bool Reverse = false;
 
         public BoardNode(BoardNode previous, TileBoard board, char TileMoved)
         {
@@ -26,11 +26,12 @@ namespace UninformedSearch
     {
         void Push(BoardNode node);
         BoardNode Pop();
+        int Count();
     }
 
     class NodeQueue : INodeList
     {
-        private Queue<BoardNode> queue; 
+        private Queue<BoardNode> queue = new Queue<BoardNode>();
 
         public void Push(BoardNode node)
         {
@@ -41,11 +42,16 @@ namespace UninformedSearch
         {
             return queue.Dequeue();
         }
+
+        public int Count()
+        {
+            return queue.Count();
+        }
     }
 
     class NodeStack : INodeList
     {
-        private Stack<BoardNode> stack;
+        private Stack<BoardNode> stack = new Stack<BoardNode>();
 
         public void Push(BoardNode node)
         {
@@ -56,6 +62,11 @@ namespace UninformedSearch
         {
             return stack.Pop();
         }
+
+        public int Count()
+        {
+            return stack.Count();
+        }
     }
 
     class NodeDepthStack : INodeList
@@ -63,15 +74,19 @@ namespace UninformedSearch
         private Stack<BoardNode> stack;
         private Queue<BoardNode> queue;
         public int Depth;
+        public bool CanDeepen = false;
 
-        public NodeDepthStack(int depth)
+        public NodeDepthStack(int depth, bool canDeepen = false)
         {
             Depth = depth;
+            CanDeepen = canDeepen;
+            stack = new Stack<BoardNode>();
+            queue = new Queue<BoardNode>();
         }
 
         public void Push(BoardNode node)
         {
-            if(node.Cost <= Depth)
+            if (node.Cost <= Depth)
                 stack.Push(node);
             else
                 queue.Enqueue(node);
@@ -79,13 +94,10 @@ namespace UninformedSearch
 
         public BoardNode Pop()
         {
-            if(stack.Count>0)
-                return stack.Pop();
-            else
-            {
-                SetDepth(Depth+1);
-                return stack.Pop();
-            }
+            var result = stack.Pop();
+            if (CanDeepen && stack.Count == 0)
+                SetDepth(Depth + 1);
+            return result;
         }
 
         public void SetDepth(int newDepth)
@@ -96,7 +108,7 @@ namespace UninformedSearch
             while (queue.Count > 0)
             {
                 var node = queue.Dequeue();
-                if(node.Cost <= Depth)
+                if (node.Cost <= Depth)
                     stack.Push(node);
                 else
                     newQueue.Enqueue(node);
@@ -104,28 +116,10 @@ namespace UninformedSearch
 
             queue = newQueue;
         }
-    }
 
-    class DepthFirstSearch : BreadthFirstSearch
-    {
-        public override void Solve(TileBoard inputBoard)
+        public int Count()
         {
-            Solve(inputBoard, new NodeStack());
+            return stack.Count();
         }
     }
-
-    class BreadthFirstSearch
-    {
-        public virtual void Solve(TileBoard inputBoard)
-        {
-            Solve(inputBoard, new NodeQueue());
-        }
-
-        public static void Solve(TileBoard inputBoard, INodeList openNodes)
-        {
-            
-        }
-    }
-
-    
 }

@@ -18,14 +18,20 @@ namespace UninformedSearch
 
                 tileBoard = new TileBoard(input);
             }
-            else
+
+            while (Console.ReadLine() != "q")
             {
-                tileBoard = new TileBoard();
-                tileBoard.Randomize('_');
+                if (DEBUG)
+                {
+                    tileBoard = new TileBoard();
+                    tileBoard.Randomize('_');
+                }
+                var searches = new Searches();
+                searches.BreadthFirstSearch(tileBoard.Copy());
+                searches.DepthFirstSearch(tileBoard.Copy());
+                searches.DepthLimitedSearch(tileBoard.Copy());
+                searches.IterativeDeepeningSearch(tileBoard.Copy());
             }
-
-            BreadthFirstSearch.Solve(tileBoard.Copy());
-
             Console.ReadLine();
         }
     }
